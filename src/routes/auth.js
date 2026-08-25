@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { buildAuthorizeUrl, exchangeCodeForTokens, getClient } = require('../contaAzulAuth');
 
-const REDIRECT_URI = process.env.CONTA_AZUL_REDIRECT_URI || 'http://localhost:3000/auth/contaazul/callback';
+const REDIRECT_URI = process.env.CONTA_AZUL_REDIRECT_URI || 'https://virtus-dashboard.onrender.com/auth/contaazul/callback';
 
 /**
  * Passo 1: abra essa rota no navegador (troque :clienteId pelo id do cliente
