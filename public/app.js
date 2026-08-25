@@ -117,6 +117,36 @@ function preencherTitulos(d){
     </tr>`).join('');
 }
 
+// ==== Busca/filtro da Carteira de Clientes ====
+// Guarda a última lista completa de clientes vinda do backend, pra poder
+// filtrar localmente sem precisar de uma nova chamada à API.
+let ultimoClientesCompleto = [];
+
+function preencherClientes(lista){
+  document.getElementById('clientesBody').innerHTML = lista.map(c=>`
+    <tr><td><b>${c.nome}</b><div class="cell-sub">${c.razao}</div><div class="cell-sub">${c.doc}</div></td>
+      <td><span class="status-pill ${c.status}">${c.status==='ok'?'✓ Adimplente':'⚠ Inadimplente'}</span></td>
+      <td style="color:#94a3b8;">Não definido</td>
+      <td>${c.email}<div class="cell-sub">${c.fone}</div></td>
+    </tr>`).join('');
+}
+
+function filtrarClientes(){
+  const termo = (document.getElementById('cliSearchInput').value || '').trim().toLowerCase();
+  const termoDigits = termo.replace(/\D/g, '');
+  const status = document.getElementById('cliStatusSelect').value;
+
+  const filtrados = ultimoClientesCompleto.filter(c => {
+    const nomeBate = (c.nome || '').toLowerCase().includes(termo);
+    const docBate = termoDigits && (c.doc || '').replace(/\D/g, '').includes(termoDigits);
+    const bateTermo = !termo || nomeBate || docBate;
+    const bateStatus = !status || c.status === status;
+    return bateTermo && bateStatus;
+  });
+
+  preencherClientes(filtrados);
+}
+
 // Aceita tanto uma string de período ('30dias', 'ultimoano', ...) quanto
 // um objeto { data_de, data_ate } vindo dos inputs de data manuais.
 // Usado pela tela de RELATÓRIOS (busca tudo: KPIs, gráficos, devedores...).
@@ -210,12 +240,15 @@ async function render(periodoOuRange = 'ultimoano'){
   document.getElementById('cli-inad-note').textContent = brl(d.clientesKpis.inadimplentesValor)+' não pago';
   document.getElementById('cli-ticket').textContent = brl(d.clientesKpis.ticketMedio);
   document.getElementById('cli-recebido').textContent = brl(d.clientesKpis.valorRecebido);
-  document.getElementById('clientesBody').innerHTML = d.clientes.map(c=>`
-    <tr><td><b>${c.nome}</b><div class="cell-sub">${c.razao}</div><div class="cell-sub">${c.doc}</div></td>
-      <td><span class="status-pill ${c.status}">${c.status==='ok'?'✓ Adimplente':'⚠ Inadimplente'}</span></td>
-      <td style="color:#94a3b8;">Não definido</td>
-      <td>${c.email}<div class="cell-sub">${c.fone}</div></td>
-    </tr>`).join('');
+  ultimoClientesCompleto = d.clientes;
+  // Se já havia algo digitado na busca (ex: troca de período), reaplica o filtro.
+  const jaTinhaBusca = document.getElementById('cliSearchInput') &&
+    (document.getElementById('cliSearchInput').value || document.getElementById('cliStatusSelect').value);
+  if (jaTinhaBusca) {
+    filtrarClientes();
+  } else {
+    preencherClientes(d.clientes);
+  }
 
   // Títulos (mesma função usada pelo filtro independente de Títulos)
   preencherTitulos(d);
@@ -356,6 +389,27 @@ if (btnLimparPeriodoTitulos) {
     const range = getPeriodRange('30dias');
     atualizarInputsDataTitulos(range);
     atualizarSecaoTitulos(range);
+  });
+}
+
+// ==== Busca/filtro na Carteira de Clientes ====
+const btnBuscarClientes = document.getElementById('btnBuscarClientes');
+const btnLimparClientes = document.getElementById('btnLimparClientes');
+const cliSearchInput = document.getElementById('cliSearchInput');
+const cliStatusSelect = document.getElementById('cliStatusSelect');
+
+if (btnBuscarClientes) btnBuscarClientes.addEventListener('click', filtrarClientes);
+if (cliSearchInput) {
+  cliSearchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') filtrarClientes();
+  });
+}
+if (cliStatusSelect) cliStatusSelect.addEventListener('change', filtrarClientes);
+if (btnLimparClientes) {
+  btnLimparClientes.addEventListener('click', () => {
+    if (cliSearchInput) cliSearchInput.value = '';
+    if (cliStatusSelect) cliStatusSelect.value = '';
+    preencherClientes(ultimoClientesCompleto);
   });
 }
 

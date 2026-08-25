@@ -231,10 +231,14 @@
 
       <div class="section-title">👥 Carteira de Clientes</div>
       <div class="search-bar">
-        <input class="search-input" placeholder="🔎 Buscar por nome ou CNPJ...">
-        <select class="search-input"><option>Status</option><option>Adimplente</option><option>Inadimplente</option></select>
-        <button class="btn btn-blue">🔎 Buscar</button>
-        <button class="btn btn-white">🗑 Limpar</button>
+        <input class="search-input" id="cliSearchInput" placeholder="🔎 Buscar por nome ou CNPJ...">
+        <select class="search-input" id="cliStatusSelect">
+          <option value="">Status</option>
+          <option value="ok">Adimplente</option>
+          <option value="bad">Inadimplente</option>
+        </select>
+        <button class="btn btn-blue" id="btnBuscarClientes">🔎 Buscar</button>
+        <button class="btn btn-white" id="btnLimparClientes">🗑 Limpar</button>
       </div>
 
       <div class="card" style="padding:0;">
