@@ -1,5 +1,5 @@
 {
-  "_comentario": "Cada objeto aqui é UM cliente da Virtus com uma conta Conta Azul própria. Preencha client_id e client_secret (do app cadastrado no Portal do Desenvolvedor) e o refresh_token (obtido no fluxo de autorização — veja o README). access_token e access_token_expires_at são preenchidos automaticamente pelo backend, não precisa mexer.",
+  "_comentario": "Cada objeto aqui é UM cliente da Virtus com uma conta Conta Azul própria. Preencha client_id e client_secret (do app cadastrado no Portal do Desenvolvedor) e o refresh_token (obtido no fluxo de autorização — veja o README). access_token e access_token_expires_at são preenchidos automaticamente pelo backend, não precisa mexer. rotuloCentroCusto define como o 'centro de custo' da Conta Azul é chamado nas telas desse cliente (padrão: 'Obra').",
   "clientes": [
     {
       "id": "asset-gestao",
@@ -21,6 +21,18 @@
         "refresh_token": "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.m0bsvsg98n8TYoAJEYOTZ16giOEG0LX92qT5iZjUFb0tHnCTDIRclTZjSgNXFbw4SJ6sGnnmRWkEaJBoG9aK2AMNjVPl-vvs8Zz800pjhNrNXDfMYk837r970qhMn4HpTyjzmaJxO0kZ75444wzAUGLBO_msA-8PaFo3nx5ftMyo8XA86GR8gMMYD5u3bmyYwFtVSNy7EX2Rk3CMbczCAxmy9fnkLyINCfd9Ml7TGYCa79UU5WjcH5ZGHpKv_ey07xQO3EeVphcfzvaT6IyvFfji-ktB-c_jJkTgkrnxubKL50lJqM0l7rjrGl7KhfqYq9h8HRYoY-MU1f-g9j-jQA.gtCFKZ7wosoMh-9c.2gQGRx--FqcKqJi8S1bW175yqAGjfii5yq3vqIKsecgIQ4SRPdXZ48nQ2pq1rBMOXUpcD3BSpdRKB1YhXFqQ6WD2mn8QIR6ngc6HdzTXWn0TFqGHPYN54GYiCQ_VDFaRZTBqfoSjGTqCiqXyTnsXGaQxO-XUXdA0WP4vXfBFkQJWX-Bseh8TaYhXfnKbQuh7qwFP0S7W1rPoPZypHdnOWcMiEu84IzKFhGn2C_BmUlYTLnJC-8Ond-cNr6Xx8j73PbABAcwcA9LLD49rOc14-MmBngvNRp-_EY_fv7oayVJQQPEDPJf-y9-R4Xdt0JeWUO-GdWXjZ_B-SPrt04YNkulk7hC7nSUJrpEck9JAim970TfZcsNjLruDoGvPb0_NtqdHTdQtatDjSQXFkBPOOkHTZMsQtKaw140wExZvYOhCOcKv9XvLDYvxilKkqmYNJojgiTfWamfm38di_PTvKt_q02zz8sZu4CLzxRNyuhYHz7KT2BI7kSvEGt8dSXjEr59tib1NSzTPwZ3QtvCLzuq6Rjvu-odFKH_JieCxhMbN9f4cq9EEYXoQsQfDqI-kx7ShXlkOYnBbTxHDJ7qFUPX_6P2l_ao7PEs0NKqKVL-mV__MfWzpEOHgjLHThh1YuOb4hKhRRmJtSOyfIT4nQJZF7HGpxOdD2D1aMEHpkmskGcxjH02IqSgDkAqLIkUSJo-7Jb8rKAQhRTPWZDE2WhbHCiiFpsAWavgdMQrvIKCa2rFE6M5sAtIABum42vxuRvHnVJbQjO8l8eVHfsHT9YqRry8tydo5J7lESjGYxWBobMi-dZDzbg4Fmq1yHx4eaZ_DDiUdFGHHw4izgQPUw0R9qB-lsvfpi5sMbBQkOXrIpS5rFlPsfa2rBIwGV6le5TUzX9VWEELRQHjKeo-TIwqFfbXC-YPkLisO6ejeEOgDvnS4VfWCj55h3rKKwoN6NyAd_9I1ead2EiZbrlZMJD_A6U4SUlaJdZO6iMpbUZsoGvCwcPic3p-twYygd_gvrw98NdfhD1soFO3oy5jlraHT91ANMvPOeekrB-_mJGg53mZI8HfrnC-DfLFaJcWR5Xt2Dhbe2UVV6c8fukWSmmNAVRI2_6HBRzvZhakdugs53xZGr4bVF5in17IMcdEgpNb1O4qNy2EdmLmBra019RIdcIttdvZRzUNtWqxM71q6lMgs59zmmVriZUWD9QTYX2pPE2Q4VKpLGC-TV4PaaR4bPFIPLSrEAMAZqWo8S6kc4wDR_PIxVXP06lmyqPklibo7uvGQd5dn4j4wLyjDHF_quPIuIsthTZ-EYZH-B-xPRSkaSKtSihGvVYtL1qsXaL25hB6yuitpiNgyzt2u1iFGI-DQR7xVber5olD6yOFhBR7S97NV0iHOrt3l3u2OrBtxX4DPcUBmu8NSi5WTZjJeiT_Z-vV5w0YN8tE.VprG9iCxJcx8576SZcrZkw",
         "access_token": "eyJraWQiOiJUa1BRbWs0UlR3M3RuWlZXcDdEanBURFgvZFNqM28xTlJyQjRHcjdnMVMwPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3M2ZjOWE5YS02MDYxLTcwZjItMjY0My01NDA5ODQyODFiZGEiLCJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLnNhLWVhc3QtMS5hbWF6b25hd3MuY29tL3NhLWVhc3QtMV9WcDgzSjExd0EiLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiIxZGNrZTNsMWVrNmhsdW42NGJndHN2aWo0MyIsIm9yaWdpbl9qdGkiOiJkN2NiOWZmMC1kYjcxLTQwZWEtYTM0ZC1lYTVlYTE1ZDk5YjkiLCJldmVudF9pZCI6IjU1MGMwODhmLTAyMWMtNGI0MS05ZDcyLTA4Yjc0NzM2MmFjOSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4gb3BlbmlkIHByb2ZpbGUiLCJhdXRoX3RpbWUiOjE3ODY2Mjk3NjYsImV4cCI6MTc4NzU4MzY5NCwiaWF0IjoxNzg3NTgwMDk0LCJqdGkiOiI0NmZkNTdlYS1lOTNiLTQzMGUtYThhYi1kZmFkMTNmZjUyZDkiLCJ1c2VybmFtZSI6ImNvaW5icmFhdXRvQGdtYWlsLmNvbSJ9.fxBveCYlsibDf0vSpNlIcAC4sWHL6I5cfzyQwnJDgJf7wNG8FhKhMfdixuPtAsaKww6oPgGtOTXGWy8Of5KJ7aO4K28n0CG5NXwAzHXjiMdzlLoYgap9OnVA-SPt2njvMlhF5Pok_xHMDCBnq9DJDUAdCK_LV68hyB2sijcJXMaV0jOOeC0G53RqYHckPK4Cmrm0sQnRur2xgdbQfxyeRFtsR8RUJEbY7rqLdAaWDUHZyFBENal8uJKac-jjfQHD_2tioIo2DkRSsV0Gmw2K-TkQIEUAQx68WFZ5Aklv1eJIYlpO2L1AV-sgxrRbLGeiADskzd1YkiKIr2rUUAAkrA",
         "access_token_expires_at": 1787583640439
+      }
+    },
+    {
+      "id": "mario",
+      "nome": "MARIO - CLINICA E INSTITUTO",
+      "rotuloCentroCusto": "Centro de Custo",
+      "contaazul": {
+        "client_id": "1dcke3l1ek6hlun64bgtsvij43",
+        "client_secret": "8tpp8kguq7frfbhdf5vck76mosi14c4vcsgv77fqf6a0o43sue5",
+        "refresh_token": null,
+        "access_token": null,
+        "access_token_expires_at": null
       }
     }
   ]
