@@ -1,6 +1,6 @@
 // Troque aqui pelo id do cliente cadastrado em config/clients.json no backend
 const CLIENTE_ID = 'coinbra';
-
+ 
 async function fetchContaAzulData(params = {}) {
   try {
     const query = new URLSearchParams({ cliente_id: CLIENTE_ID, ...params }).toString();
@@ -14,7 +14,7 @@ async function fetchContaAzulData(params = {}) {
     return MOCK_DATA;
   }
 }
-
+ 
 const MOCK_DATA = {
   kpis: { taxaInadimplencia:"7,45%", totalVencido:32096.32, clientesInadimplentes:14, prazoMedioAtraso:"95 dias" },
   evolucao: {
@@ -49,20 +49,20 @@ const MOCK_DATA = {
     {dias:"D+3",nome:"* Cobrança",sub:"D+3 (3 dias depois)",canais:["Email"],ativo:true}
   ]
 };
-
+ 
 function brl(v){ return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-
+ 
 function formatarDataISO(d){
   return d.toISOString().split('T')[0];
 }
-
+ 
 // Calcula o intervalo de datas (data_de / data_ate) pra cada chip de período.
 // Usado tanto pelo filtro de Relatórios quanto pelo de Títulos.
 function getPeriodRange(periodo){
   const hoje = new Date();
   const fim = new Date(hoje);
   let inicio = new Date(hoje);
-
+ 
   switch(periodo){
     case 'hoje':
       inicio = new Date(hoje);
@@ -87,27 +87,25 @@ function getPeriodRange(periodo){
       inicio.setFullYear(hoje.getFullYear() - 1);
       break;
   }
-
+ 
   return { data_de: formatarDataISO(inicio), data_ate: formatarDataISO(fim) };
 }
-
+ 
 // Guarda as instâncias dos gráficos pra poder destruir e redesenhar
 // sempre que o período mudar.
 const chartInstances = {};
 function destruirGraficos(){
   Object.values(chartInstances).forEach(c => c && c.destroy());
 }
-
+ 
 // Preenche a tabela de Títulos + os 3 cards de KPI dessa tela.
 // Usada tanto no carregamento inicial (dentro de render()) quanto no
 // filtro de período independente da tela de Títulos.
-function preencherTitulos(d){
-  document.getElementById('tit-recebido').textContent = brl(d.acumulado.recebido);
-  document.getElementById('tit-aberto').textContent = brl(d.acumulado.aReceber);
-  document.getElementById('tit-vencido').textContent = brl(d.acumulado.vencido);
-
+let ultimoTitulosCompleto = [];
+ 
+function preencherTitulosTabela(lista){
   const statusTag = s => s==='Pago'?'blue':(s==='A Vencer'?'green':(s==='Parcial'?'amber':'red'));
-  document.getElementById('titulosBody').innerHTML = d.titulos.map(t=>`
+  document.getElementById('titulosBody').innerHTML = lista.map(t=>`
     <tr><td><b>${t.doc}</b></td>
       <td>${t.cliente}<div class="cell-sub">${t.cnpj||''}</div></td>
       <td style="color:var(--text-muted);font-size:12.5px;">${t.obra || '—'}</td>
@@ -116,12 +114,44 @@ function preencherTitulos(d){
       <td><span class="tag ${statusTag(t.status)}">${t.status}</span></td>
     </tr>`).join('');
 }
-
+ 
+function filtrarTitulos(){
+  const termo = (document.getElementById('titSearchInput').value || '').trim().toLowerCase();
+  const termoDigits = termo.replace(/\D/g, '');
+  const status = document.getElementById('titStatusSelect').value;
+ 
+  const filtrados = ultimoTitulosCompleto.filter(t => {
+    const docBate = (t.doc || '').toLowerCase().includes(termo);
+    const clienteBate = (t.cliente || '').toLowerCase().includes(termo);
+    const cnpjBate = termoDigits && (t.cnpj || '').replace(/\D/g, '').includes(termoDigits);
+    const bateTermo = !termo || docBate || clienteBate || cnpjBate;
+    const bateStatus = !status || t.status === status;
+    return bateTermo && bateStatus;
+  });
+ 
+  preencherTitulosTabela(filtrados);
+}
+ 
+function preencherTitulos(d){
+  document.getElementById('tit-recebido').textContent = brl(d.acumulado.recebido);
+  document.getElementById('tit-aberto').textContent = brl(d.acumulado.aReceber);
+  document.getElementById('tit-vencido').textContent = brl(d.acumulado.vencido);
+ 
+  ultimoTitulosCompleto = d.titulos;
+  const jaTinhaBusca = document.getElementById('titSearchInput') &&
+    (document.getElementById('titSearchInput').value || document.getElementById('titStatusSelect').value);
+  if (jaTinhaBusca) {
+    filtrarTitulos();
+  } else {
+    preencherTitulosTabela(d.titulos);
+  }
+}
+ 
 // ==== Busca/filtro da Carteira de Clientes ====
 // Guarda a última lista completa de clientes vinda do backend, pra poder
 // filtrar localmente sem precisar de uma nova chamada à API.
 let ultimoClientesCompleto = [];
-
+ 
 function preencherClientes(lista){
   document.getElementById('clientesBody').innerHTML = lista.map(c=>`
     <tr><td><b>${c.nome}</b><div class="cell-sub">${c.razao}</div><div class="cell-sub">${c.doc}</div></td>
@@ -130,12 +160,12 @@ function preencherClientes(lista){
       <td>${c.email}<div class="cell-sub">${c.fone}</div></td>
     </tr>`).join('');
 }
-
+ 
 function filtrarClientes(){
   const termo = (document.getElementById('cliSearchInput').value || '').trim().toLowerCase();
   const termoDigits = termo.replace(/\D/g, '');
   const status = document.getElementById('cliStatusSelect').value;
-
+ 
   const filtrados = ultimoClientesCompleto.filter(c => {
     const nomeBate = (c.nome || '').toLowerCase().includes(termo);
     const docBate = termoDigits && (c.doc || '').replace(/\D/g, '').includes(termoDigits);
@@ -143,25 +173,25 @@ function filtrarClientes(){
     const bateStatus = !status || c.status === status;
     return bateTermo && bateStatus;
   });
-
+ 
   preencherClientes(filtrados);
 }
-
+ 
 // Aceita tanto uma string de período ('30dias', 'ultimoano', ...) quanto
 // um objeto { data_de, data_ate } vindo dos inputs de data manuais.
 // Usado pela tela de RELATÓRIOS (busca tudo: KPIs, gráficos, devedores...).
 async function render(periodoOuRange = 'ultimoano'){
   const range = typeof periodoOuRange === 'string' ? getPeriodRange(periodoOuRange) : periodoOuRange;
   const d = await fetchContaAzulData(range);
-
+ 
   destruirGraficos();
-
+ 
   // KPIs relatório
   document.getElementById('kpi-taxa').textContent = d.kpis.taxaInadimplencia;
   document.getElementById('kpi-vencido').textContent = brl(d.kpis.totalVencido);
   document.getElementById('kpi-clientes').textContent = d.kpis.clientesInadimplentes;
   document.getElementById('kpi-prazo').textContent = d.kpis.prazoMedioAtraso;
-
+ 
   // Gráfico Evolução
   chartInstances.evolucao = new Chart(document.getElementById('chartEvolucao'), {
     type:'bar',
@@ -182,7 +212,7 @@ async function render(periodoOuRange = 'ultimoano'){
       plugins:{legend:{position:'bottom',labels:{boxWidth:10,usePointStyle:true}}}
     }
   });
-
+ 
   // Donut
   chartInstances.donut = new Chart(document.getElementById('chartDonut'), {
     type:'doughnut',
@@ -199,21 +229,21 @@ async function render(periodoOuRange = 'ultimoano'){
       <span class="legend-val"><span class="amount">${brl(d.acumulado.vencido)}</span><span class="pct">${(d.acumulado.vencido/totalAcum*100).toFixed(2)}%</span></span></div>
     <div class="legend-row"><span>Total</span><span class="legend-val"><span class="amount">${brl(d.acumulado.total)}</span></span></div>
   `;
-
+ 
   // Faixa de atraso
   chartInstances.faixa = new Chart(document.getElementById('chartFaixa'), {
     type:'bar',
     data:{labels:d.faixaAtraso.map(f=>f.label),datasets:[{data:d.faixaAtraso.map(f=>f.valor),backgroundColor:d.faixaAtraso.map(f=>f.cor),borderRadius:3}]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'R$ '+(v/1000)+'K'},grid:{color:'#f0f1f6'}},y:{grid:{display:false}}}}
   });
-
+ 
   // Pagamento após vencimento
   chartInstances.pagamento = new Chart(document.getElementById('chartPagamento'), {
     type:'bar',
     data:{labels:d.pagamentoAposVencimento.map(f=>f.label),datasets:[{data:d.pagamentoAposVencimento.map(f=>f.valor),backgroundColor:'#16a67a',borderRadius:3}]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'R$ '+(v/1000)+'K'},grid:{color:'#f0f1f6'}},y:{grid:{display:false}}}}
   });
-
+ 
   // Centro de Custos (Obras)
   const centrosCustoBody = document.getElementById('centrosCustoBody');
   if (centrosCustoBody && d.centrosCusto) {
@@ -222,7 +252,7 @@ async function render(periodoOuRange = 'ultimoano'){
         <td>${brl(c.valor)}</td>
       </tr>`).join('');
   }
-
+ 
   // Devedores
   document.getElementById('devedoresTotal').textContent = brl(d.devedores.reduce((a,x)=>a+x.valor,0));
   document.getElementById('devedoresBody').innerHTML = d.devedores.map((x,i)=>`
@@ -233,7 +263,7 @@ async function render(periodoOuRange = 'ultimoano'){
       <td>${x.titulos}</td>
       <td><span class="tag ${x.atraso<=5?'blue':(x.atraso<40?'amber':'red')}">${x.atraso} dias</span></td>
     </tr>`).join('');
-
+ 
   // Clientes
   document.getElementById('cli-total').textContent = d.clientesKpis.total;
   document.getElementById('cli-inad').textContent = d.clientesKpis.inadimplentes;
@@ -249,10 +279,10 @@ async function render(periodoOuRange = 'ultimoano'){
   } else {
     preencherClientes(d.clientes);
   }
-
+ 
   // Títulos (mesma função usada pelo filtro independente de Títulos)
   preencherTitulos(d);
-
+ 
   // Régua de cobrança
   document.getElementById('gatilhosBody').innerHTML = d.gatilhos.map(g=>`
     <tr><td><span class="tag blue">${g.dias}</span></td>
@@ -261,7 +291,7 @@ async function render(periodoOuRange = 'ultimoano'){
       <td><div class="toggle ${g.ativo?'on':''}"></div></td>
       <td>✏️ 🗑️</td>
     </tr>`).join('');
-
+ 
   // Protestos (regra: vencido há 90+ dias)
   const LIMITE_DIAS_PROTESTO = 90;
   const protestaveis = d.titulos.filter(t => {
@@ -287,9 +317,9 @@ async function render(periodoOuRange = 'ultimoano'){
       </tr>`).join('');
   }
 }
-
+ 
 render('ultimoano');
-
+ 
 // Navegação lateral
 document.querySelectorAll('.nav-item[data-page]').forEach(item=>{
   item.addEventListener('click', ()=>{
@@ -299,20 +329,20 @@ document.querySelectorAll('.nav-item[data-page]').forEach(item=>{
     document.getElementById('page-'+item.dataset.page).classList.add('active');
   });
 });
-
+ 
 // ==== Filtro de período na tela de Relatórios (chips + datas manuais) ====
 const mapaChipPeriodo = { 0: '30dias', 1: '90dias', 2: 'estemes', 3: 'esteano', 4: 'ultimoano' };
 const chipsPeriodo = document.querySelectorAll('#page-relatorios .filter-bar .chip');
 const dataDeInput = document.getElementById('dataDeInput');
 const dataAteInput = document.getElementById('dataAteInput');
 const btnLimparPeriodo = document.getElementById('btnLimparPeriodo');
-
+ 
 function atualizarInputsData(range){
   if (dataDeInput) dataDeInput.value = range.data_de;
   if (dataAteInput) dataAteInput.value = range.data_ate;
 }
 atualizarInputsData(getPeriodRange('ultimoano'));
-
+ 
 chipsPeriodo.forEach((chip, index) => {
   chip.addEventListener('click', () => {
     chipsPeriodo.forEach(c => c.classList.remove('active'));
@@ -323,7 +353,7 @@ chipsPeriodo.forEach((chip, index) => {
     render(periodo);
   });
 });
-
+ 
 function periodoPersonalizado(){
   chipsPeriodo.forEach(c => c.classList.remove('active'));
   const data_de = dataDeInput.value;
@@ -333,7 +363,7 @@ function periodoPersonalizado(){
 }
 if (dataDeInput) dataDeInput.addEventListener('change', periodoPersonalizado);
 if (dataAteInput) dataAteInput.addEventListener('change', periodoPersonalizado);
-
+ 
 if (btnLimparPeriodo) {
   btnLimparPeriodo.addEventListener('click', () => {
     chipsPeriodo.forEach(c => c.classList.remove('active'));
@@ -342,25 +372,25 @@ if (btnLimparPeriodo) {
     render('ultimoano');
   });
 }
-
+ 
 // ==== Filtro de período na tela de Títulos (independente do de Relatórios) ====
 async function atualizarSecaoTitulos(range){
   const d = await fetchContaAzulData(range);
   preencherTitulos(d);
 }
-
+ 
 const mapaChipPeriodoTitulos = { 0: 'hoje', 1: '7dias', 2: '30dias', 3: '90dias', 4: 'estemes', 5: 'esteano' };
 const chipsPeriodoTitulos = document.querySelectorAll('#page-titulos .filter-bar .chip');
 const titDataDeInput = document.getElementById('titDataDeInput');
 const titDataAteInput = document.getElementById('titDataAteInput');
 const btnLimparPeriodoTitulos = document.getElementById('btnLimparPeriodoTitulos');
-
+ 
 function atualizarInputsDataTitulos(range){
   if (titDataDeInput) titDataDeInput.value = range.data_de;
   if (titDataAteInput) titDataAteInput.value = range.data_ate;
 }
 atualizarInputsDataTitulos(getPeriodRange('30dias'));
-
+ 
 chipsPeriodoTitulos.forEach((chip, index) => {
   chip.addEventListener('click', () => {
     chipsPeriodoTitulos.forEach(c => c.classList.remove('active'));
@@ -371,7 +401,7 @@ chipsPeriodoTitulos.forEach((chip, index) => {
     atualizarSecaoTitulos(range);
   });
 });
-
+ 
 function periodoPersonalizadoTitulos(){
   chipsPeriodoTitulos.forEach(c => c.classList.remove('active'));
   const data_de = titDataDeInput.value;
@@ -381,7 +411,7 @@ function periodoPersonalizadoTitulos(){
 }
 if (titDataDeInput) titDataDeInput.addEventListener('change', periodoPersonalizadoTitulos);
 if (titDataAteInput) titDataAteInput.addEventListener('change', periodoPersonalizadoTitulos);
-
+ 
 if (btnLimparPeriodoTitulos) {
   btnLimparPeriodoTitulos.addEventListener('click', () => {
     chipsPeriodoTitulos.forEach(c => c.classList.remove('active'));
@@ -391,13 +421,13 @@ if (btnLimparPeriodoTitulos) {
     atualizarSecaoTitulos(range);
   });
 }
-
+ 
 // ==== Busca/filtro na Carteira de Clientes ====
 const btnBuscarClientes = document.getElementById('btnBuscarClientes');
 const btnLimparClientes = document.getElementById('btnLimparClientes');
 const cliSearchInput = document.getElementById('cliSearchInput');
 const cliStatusSelect = document.getElementById('cliStatusSelect');
-
+ 
 if (btnBuscarClientes) btnBuscarClientes.addEventListener('click', filtrarClientes);
 if (cliSearchInput) {
   cliSearchInput.addEventListener('keydown', e => {
@@ -412,7 +442,28 @@ if (btnLimparClientes) {
     preencherClientes(ultimoClientesCompleto);
   });
 }
-
+ 
+// ==== Busca/filtro na tabela de Títulos ====
+const btnBuscarTitulos = document.getElementById('btnBuscarTitulos');
+const btnLimparFiltrosTitulos = document.getElementById('btnLimparFiltrosTitulos');
+const titSearchInput = document.getElementById('titSearchInput');
+const titStatusSelect = document.getElementById('titStatusSelect');
+ 
+if (btnBuscarTitulos) btnBuscarTitulos.addEventListener('click', filtrarTitulos);
+if (titSearchInput) {
+  titSearchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') filtrarTitulos();
+  });
+}
+if (titStatusSelect) titStatusSelect.addEventListener('change', filtrarTitulos);
+if (btnLimparFiltrosTitulos) {
+  btnLimparFiltrosTitulos.addEventListener('click', () => {
+    if (titSearchInput) titSearchInput.value = '';
+    if (titStatusSelect) titStatusSelect.value = '';
+    preencherTitulosTabela(ultimoTitulosCompleto);
+  });
+}
+ 
 // Sub-abas dentro de Régua de Cobrança
 document.querySelectorAll('#reguaSubTabs .sub-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -424,7 +475,7 @@ document.querySelectorAll('#reguaSubTabs .sub-tab').forEach(tab => {
     });
   });
 });
-
+ 
 // ==== Botão "Sair" (login) ====
 // Último item dentro de .sidebar-footer .nav-item é o "Sair"
 const itensRodape = document.querySelectorAll('.sidebar-footer .nav-item');
@@ -436,3 +487,4 @@ if (btnSair) {
     window.location.href = 'login.html';
   });
 }
+ 

@@ -296,10 +296,16 @@
       </div>
 
       <div class="search-bar">
-        <input class="search-input" placeholder="🔎 Buscar por documento, cliente ou CNPJ...">
-        <select class="search-input"><option>Todos os Status</option><option>Pago</option><option>A Vencer</option><option>Vencido</option></select>
-        <button class="btn btn-blue">🔎 Buscar</button>
-        <button class="btn btn-white">🗑 Limpar Filtros</button>
+        <input class="search-input" id="titSearchInput" placeholder="🔎 Buscar por documento, cliente ou CNPJ...">
+        <select class="search-input" id="titStatusSelect">
+          <option value="">Todos os Status</option>
+          <option value="Pago">Pago</option>
+          <option value="A Vencer">A Vencer</option>
+          <option value="Vencido">Vencido</option>
+          <option value="Parcial">Parcial</option>
+        </select>
+        <button class="btn btn-blue" id="btnBuscarTitulos">🔎 Buscar</button>
+        <button class="btn btn-white" id="btnLimparFiltrosTitulos">🗑 Limpar Filtros</button>
       </div>
 
       <div class="toolbar">
