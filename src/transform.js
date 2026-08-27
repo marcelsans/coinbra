@@ -86,7 +86,7 @@ function montarEvolucaoMensal(parcelas) {
   return { meses, recebido, vencido, pctInadimplencia };
 }
 
-function montarDashboard({ parcelas: todasParcelas, totaisOficiais, pessoas = [] }) {
+function montarDashboard({ parcelas: todasParcelas, totaisOficiais, pessoas = [], rotuloCentroCusto = 'Obra' }) {
   const parcelas = todasParcelas.filter(p => !statusExcluido(p.status_traduzido));
   const total = parcelas.length;
 
@@ -221,6 +221,7 @@ function montarDashboard({ parcelas: todasParcelas, totaisOficiais, pessoas = []
     evolucao: montarEvolucaoMensal(parcelas),
     faixaAtraso,
     centrosCusto,
+    rotuloCentroCusto,
     pagamentoAposVencimento: [{ label: 'Em dia', valor: totalRecebido }],
     devedores,
     titulos,

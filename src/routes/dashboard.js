@@ -55,8 +55,11 @@ router.get('/dashboard', async (req, res) => {
     })));
     console.log('=== FIM ===');
 
-    const dashboard = montarDashboard({ parcelas, totaisOficiais, pessoas });
+        const clientesConfig = readClients();
+    const clienteAtual = clientesConfig.clientes.find(c => c.id === cliente_id);
+    const rotuloCentroCusto = clienteAtual?.rotuloCentroCusto || 'Obra';
 
+    const dashboard = montarDashboard({ parcelas, totaisOficiais, pessoas, rotuloCentroCusto });
     res.json(dashboard);
   } catch (e) {
     console.error(e.response?.data || e.message);
