@@ -21,6 +21,16 @@ app.use('/api', dashboardRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
+app.get('/debug/clients', (req, res) => {
+  if (req.query.senha !== 'virtus2026temp') {
+    return res.status(403).json({ erro: 'Senha incorreta' });
+  }
+  const fs = require('fs');
+  const path = require('path');
+  const data = fs.readFileSync(path.join(__dirname, 'config', 'clients.json'), 'utf-8');
+  res.type('json').send(data);
+});
+
 app.listen(PORT, () => {
   console.log(`\n🚀 Virtus backend rodando em http://localhost:${PORT}`);
   console.log(`   Front-end:        http://localhost:${PORT}`);
