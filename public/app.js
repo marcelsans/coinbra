@@ -1,5 +1,5 @@
 /// Troque aqui pelo id do cliente cadastrado em config/clients.json no backend
-const CLIENTE_ID = 'mario';
+const CLIENTE_ID = 'coinbra';
 
 async function fetchContaAzulData(params = {}) {
   try {
